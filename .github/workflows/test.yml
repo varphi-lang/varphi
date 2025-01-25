@@ -1,0 +1,70 @@
+name: Lint and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint_and_test_linux:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.13'
+      
+      # Step 3: Set up Java
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '23'
+      
+      # Step 4: Test
+      - name: Test
+        run: |
+          make test
+      
+      # Step 5: Lint
+      - name: Lint
+        run: |
+          make lint
+
+  lint_and_test_windows:
+    runs-on: windows-latest
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.13'
+      
+      # Step 3: Set up Java
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '23'
+      
+      # Step 4: Test
+      - name: Test
+        run: |
+          make test
+      
+      # Step 5: Lint
+      - name: Lint
+        run: |
+          make lint
