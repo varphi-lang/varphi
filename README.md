@@ -8,7 +8,7 @@ This is the main source code repository for Varphi. It contains the compiler, in
 
 ## Documentation
 
-Complete documentation is available at [here](https://docs.varphi-lang.com/).
+Complete documentation is available [here](https://docs.varphi-lang.com/).
 
 ## Contributing
 
