@@ -127,7 +127,7 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/varphi
 
 ### Structure of the Varphi Codebase
 
-Link coming soon!
+An overview of the Varphi codebase is available [here](https://docs.varphi-lang.com/contributing/the-codebase)
 
 ## Attribution
 This guide is based on the [contributing.md](https://contributing.md/generator)!
