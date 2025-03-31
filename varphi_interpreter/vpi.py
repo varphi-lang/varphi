@@ -12,6 +12,7 @@ from varphi.compilation.varphi_translator import (
 import varphi.runtime.cli
 import varphi.runtime.cli_debugger
 import varphi.runtime.debug_adapter
+import varphi.runtime.cli_with_complexity
 
 
 def main():
@@ -34,6 +35,14 @@ def main():
         action="store_true",
         help="Compile the program to a debug adapter target.",
     )
+
+    parser.add_argument(
+        "-c",
+        "--complexity",
+        action="store_true",
+        help="Print the number of steps taken by the machine and the number of tape cells accessed.",
+    )
+
     args = parser.parse_args()
     if args.debug:
         exec(  # pylint: disable=W0122
@@ -50,6 +59,15 @@ def main():
                 args.program,
                 "from varphi.runtime.debug_adapter import main\n",
                 translator_type=VarphiTranslatorCLIDebugAdapterTarget,
+            ),
+            {"__name__": "__main__"},
+        )
+    elif args.complexity:
+        exec(  # pylint: disable=W0122
+            varphi_file_to_python(
+                args.program,
+                "from varphi.runtime.cli_with_complexity import main\n",
+                translator_type=VarphiTranslatorCLITarget,
             ),
             {"__name__": "__main__"},
         )
