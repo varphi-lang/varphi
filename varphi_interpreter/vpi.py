@@ -53,13 +53,6 @@ def main():
         help="Prompt explicitly for the input tape and explicitly specify the output tape.",
     )
 
-    parser.add_argument(
-        "-v",
-        "--version",
-        action="store_true",
-        help="Display the vpi version.",
-    )
-
     args = parser.parse_args()
     if args.debug:
         exec(  # pylint: disable=W0122
