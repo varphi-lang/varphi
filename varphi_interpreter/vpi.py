@@ -13,7 +13,10 @@ import varphi.runtime.cli
 import varphi.runtime.cli_debugger
 import varphi.runtime.debug_adapter
 import varphi.runtime.cli_with_complexity
+import varphi.runtime.cli_with_prompts
 
+
+VPI_VERSION = "1.1.0"
 
 def main():
     """The main function for the vpi command line interface."""
@@ -40,7 +43,21 @@ def main():
         "-c",
         "--complexity",
         action="store_true",
-        help="Print the number of steps taken by the machine and the number of tape cells accessed.",
+        help="Enable prompting and print the number of steps taken by the machine and the number of tape cells accessed.",
+    )
+
+    parser.add_argument(
+        "-p",
+        "--enable-prompts",
+        action="store_true",
+        help="Prompt explicitly for the input tape and explicitly specify the output tape.",
+    )
+
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="store_true",
+        help="Display the vpi version.",
     )
 
     args = parser.parse_args()
@@ -67,6 +84,15 @@ def main():
             varphi_file_to_python(
                 args.program,
                 "from varphi.runtime.cli_with_complexity import main\n",
+                translator_type=VarphiTranslatorCLITarget,
+            ),
+            {"__name__": "__main__"},
+        )
+    elif args.enable_prompts:
+        exec(  # pylint: disable=W0122
+            varphi_file_to_python(
+                args.program,
+                "from varphi.runtime.cli_with_prompts import main\n",
                 translator_type=VarphiTranslatorCLITarget,
             ),
             {"__name__": "__main__"},
