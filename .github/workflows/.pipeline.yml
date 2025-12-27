@@ -1,0 +1,131 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    tags: ["v*"]
+
+jobs:
+  build-pypi:
+    name: Build & Publish PyPI
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+
+      - name: Build distribution
+        run: uv build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Upload PyPI Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pypi-dist
+          path: dist/*
+
+  build-executables:
+    name: Build Executable (${{ matrix.os }})
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          # Ubuntu
+          - ubuntu-latest
+          - ubuntu-24.04
+          - ubuntu-22.04
+          - ubuntu-slim
+
+          # macOS 26 Arm64 beta
+          - macos-26
+          - macos-26-xlarge
+
+          # macOS 15
+          - macos-latest-large
+          - macos-15-large
+          - macos-15-intel
+
+          # macOS 15 Arm64
+          - macos-latest
+          - macos-15
+          - macos-15-xlarge
+
+          # macOS 14
+          - macos-14-large
+
+          # macOS 14 Arm64
+          - macos-14
+          - macos-14-xlarge
+
+          # Windows
+          - windows-latest
+          - windows-2025
+          - windows-2022
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv pip install --system . pyinstaller
+
+      - name: Run PyInstaller
+        run: uv run pyinstaller --onefile --name vpi src/varphi/cli.py
+
+      - name: Rename Artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+
+          LABEL="${{ matrix.os }}"
+
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            mv "vpi.exe" "vpi-${LABEL}.exe"
+          else
+            mv "vpi" "vpi-${LABEL}"
+          fi
+
+
+      - name: Upload Executable Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exe-${{ matrix.os }}
+          path: dist/vpi-*
+
+  release:
+    name: Create GitHub Release
+    needs: [build-pypi, build-executables]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_assets
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release_assets/*
+          generate_release_notes: true
+          make_latest: true

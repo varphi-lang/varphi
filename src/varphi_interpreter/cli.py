@@ -3,9 +3,10 @@ from pathlib import Path
 
 app = typer.Typer(add_completion=False)
 
+
 @app.command(
     context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
-    help="Compile and execute a Varphi program."
+    help="Compile and execute a Varphi program.",
 )
 def main_command(
     ctx: typer.Context,
@@ -16,29 +17,25 @@ def main_command(
         dir_okay=False,
         readable=True,
         resolve_path=True,
-        help="Path to the .var source file"
+        help="Path to the .var source file",
     ),
     dap: bool = typer.Option(
-        False, 
-        "--dap", 
-        help="Run in Debug Adapter Protocol mode (for IDEs)."
+        False, "--dap", help="Run in Debug Adapter Protocol mode (for IDEs)."
     ),
     debug: bool = typer.Option(
-        False, 
-        "--debug", 
-        help="Enable verbose step-by-step logging (Standard mode only)."
+        False,
+        "--debug",
+        help="Enable verbose step-by-step logging (Standard mode only).",
     ),
     check: bool = typer.Option(
-        False, 
-        "--check", 
-        help="Compile only to verify syntax (does not execute)."
+        False, "--check", help="Compile only to verify syntax (does not execute)."
     ),
 ):
     """
     The Varphi Interpreter.
-    
+
     Compiles Varphi source code to Python in-memory and executes it immediately.
-    Any extra arguments passed after the filename are forwarded to the program 
+    Any extra arguments passed after the filename are forwarded to the program
     (e.g., used for setting initial tape values in DAP mode).
     """
     import sys
@@ -69,12 +66,12 @@ def main_command(
     except VarphiSyntaxError as e:
         typer.echo(f"Compilation Error: {e}", err=True)
         raise typer.Exit(code=1)
-    
-    # We construct a new argv. 
+
+    # We construct a new argv.
     # argv[0] should be the script name (we fake it as the input file).
     # argv[1:] should be the extra arguments passed by the user (e.g., --tapes 101).
     fake_argv = [str(input_file)] + ctx.args
-    
+
     # Global scope for the executed code.
     execution_globals = {
         "__name__": "__main__",
@@ -97,8 +94,10 @@ def main_command(
         # Restore sys.argv
         sys.argv = original_argv
 
+
 def main():
     app()
+
 
 if __name__ == "__main__":
     main()
