@@ -28,6 +28,8 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
 
       - name: Upload PyPI Artifacts
         uses: actions/upload-artifact@v4
@@ -61,46 +63,61 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Install Build Dependencies
+      - name: Install Dependencies
+        shell: bash
         run: |
-          uv pip install --system pillow requests pyinstaller
-          uv pip install --system . 
+          # Create a virtual environment to avoid System/PEP 668 errors on macOS
+          uv venv
+          
+          # Install build tools and the project itself
+          # We install '.' to ensure your own package modules are found
+          uv pip install pillow requests pyinstaller .
 
-      - name: Download & Convert Logo
-        shell: python
+      - name: Create Logo Script
+        shell: bash
         run: |
+          # We write the python script to a file to avoid quoting issues in YAML
+          cat <<EOF > prepare_logo.py
           import requests
           from PIL import Image
           from io import BytesIO
-          
+          import os
+
           URL = "https://raw.githubusercontent.com/varphi-lang/.github/refs/heads/main/profile/assets/VarphiLogo.png"
           TARGET_EXT = "${{ matrix.icon_ext }}"
           OUTPUT = f"logo.{TARGET_EXT}"
-          
+
           print(f"Downloading logo from {URL}...")
-          resp = requests.get(URL)
-          resp.raise_for_status()
-          
-          img = Image.open(BytesIO(resp.content))
-          
-          if TARGET_EXT == "ico":
-              # Windows requires specific sizes in the ICO
-              img.save(OUTPUT, format='ICO', sizes=[(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)])
-          elif TARGET_EXT == "icns":
-              # macOS ICNS format
-              img.save(OUTPUT, format='ICNS')
-          else:
-              # Linux uses PNG
-              img.save(OUTPUT, format='PNG')
+          try:
+              resp = requests.get(URL)
+              resp.raise_for_status()
+              img = Image.open(BytesIO(resp.content))
               
-          print(f"Successfully created {OUTPUT}")
+              if TARGET_EXT == "ico":
+                  # Windows ICO with standard sizes
+                  img.save(OUTPUT, format='ICO', sizes=[(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)])
+              elif TARGET_EXT == "icns":
+                  # macOS ICNS
+                  img.save(OUTPUT, format='ICNS')
+              else:
+                  # Linux PNG
+                  img.save(OUTPUT, format='PNG')
+              print(f"Success: Created {OUTPUT}")
+          except Exception as e:
+              print(f"Error processing logo: {e}")
+              exit(1)
+          EOF
+
+      - name: Run Logo Script
+        shell: bash
+        run: uv run python prepare_logo.py
 
       - name: Run PyInstaller
         shell: bash
         run: |
           ICON_FILE="logo.${{ matrix.icon_ext }}"
           
-          # 'uv run' ensures we use the environment with dependencies installed
+          # Use 'uv run' to execute pyinstaller within the virtual environment
           uv run pyinstaller --onefile \
             --name vpi \
             --icon="$ICON_FILE" \
