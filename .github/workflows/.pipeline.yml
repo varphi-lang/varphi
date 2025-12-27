@@ -61,56 +61,53 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Install Dependencies
+      - name: Install Build Dependencies
         run: |
-          uv sync --group dev
-          uv add pyinstaller pillow requests
+          uv pip install --system pillow requests pyinstaller
+          uv pip install --system . 
 
-      - name: Prepare Logo
+      - name: Download & Convert Logo
         shell: python
         run: |
           import requests
           from PIL import Image
           from io import BytesIO
-          import os
           
-          # Download
-          url = "https://raw.githubusercontent.com/varphi-lang/.github/refs/heads/main/profile/assets/VarphiLogo.png"
-          print(f"Downloading logo from {url}...")
-          response = requests.get(url)
-          response.raise_for_status()
+          URL = "https://raw.githubusercontent.com/varphi-lang/.github/refs/heads/main/profile/assets/VarphiLogo.png"
+          TARGET_EXT = "${{ matrix.icon_ext }}"
+          OUTPUT = f"logo.{TARGET_EXT}"
           
-          img = Image.open(BytesIO(response.content))
+          print(f"Downloading logo from {URL}...")
+          resp = requests.get(URL)
+          resp.raise_for_status()
           
-          # Convert based on Matrix OS extension
-          target_ext = "${{ matrix.icon_ext }}"
-          output_filename = f"logo.{target_ext}"
+          img = Image.open(BytesIO(resp.content))
           
-          if target_ext == "ico":
-              # Windows: Resize to standard icon sizes
-              img.save(output_filename, format='ICO', sizes=[(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)])
-          elif target_ext == "icns":
-              # macOS: Save as ICNS
-              img.save(output_filename, format='ICNS')
+          if TARGET_EXT == "ico":
+              # Windows requires specific sizes in the ICO
+              img.save(OUTPUT, format='ICO', sizes=[(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)])
+          elif TARGET_EXT == "icns":
+              # macOS ICNS format
+              img.save(OUTPUT, format='ICNS')
           else:
-              # Linux: Keep as PNG
-              img.save(output_filename)
+              # Linux uses PNG
+              img.save(OUTPUT, format='PNG')
               
-          print(f"Saved icon to {output_filename}")
+          print(f"Successfully created {OUTPUT}")
 
       - name: Run PyInstaller
         shell: bash
         run: |
           ICON_FILE="logo.${{ matrix.icon_ext }}"
           
-          # Run Pyinstaller using 'uv run' to ensure dependencies are found
+          # 'uv run' ensures we use the environment with dependencies installed
           uv run pyinstaller --onefile \
             --name vpi \
             --icon="$ICON_FILE" \
             --clean \
             src/varphi_interpreter/cli.py
 
-      - name: Rename Artifact
+      - name: Rename Artifacts
         shell: bash
         run: |
           cd dist
