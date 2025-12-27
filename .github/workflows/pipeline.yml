@@ -109,11 +109,11 @@ jobs:
         run: |
           ICON_FILE="logo.${{ matrix.icon_ext }}"
           
-          # CHANGE: Use 'python -m PyInstaller' instead of just 'pyinstaller'
-          # This guarantees we use the venv's python interpreter and see all installed modules.
           uv run python -m PyInstaller --onefile \
             --name vpi \
             --icon="$ICON_FILE" \
+            --hidden-import "varphi_python.lib" \
+            --hidden-import "varphi_python_dap.lib" \
             --collect-all "varphi_python" \
             --collect-all "varphi_python_dap" \
             --clean \
