@@ -68,7 +68,6 @@ jobs:
         run: |
           uv venv
           
-          # Explicitly install dependencies so PyInstaller can find them
           uv pip install pillow requests pyinstaller varphi-python varphi-python-dap .
 
       - name: Create Logo Script
@@ -113,9 +112,8 @@ jobs:
           uv run pyinstaller --onefile \
             --name vpi \
             --icon="$ICON_FILE" \
-            --hidden-import="varphi_python" \
-            --hidden-import="varphi_python.lib" \
-            --hidden-import="varphi_python_dap" \
+            --collect-all "varphi_python" \
+            --collect-all "varphi_python_dap" \
             --clean \
             src/varphi_interpreter/cli.py
 
