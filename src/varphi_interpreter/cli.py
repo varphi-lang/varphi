@@ -1,7 +1,18 @@
 import typer
+import sys
 from pathlib import Path
+from typing import Optional
 
 app = typer.Typer(add_completion=False)
+
+
+def version_callback(value: bool):
+    if value:
+        # Import inside function to avoid top-level relative import issues if run as script
+        from . import __version__
+
+        typer.echo(__version__)
+        raise typer.Exit()
 
 
 @app.command(
@@ -30,11 +41,13 @@ def main_command(
     check: bool = typer.Option(
         False, "--check", help="Compile only to verify syntax (does not execute)."
     ),
-    version: bool = typer.Option(
-        False,
+    # Change: Connect the callback here
+    version: Optional[bool] = typer.Option(
+        None,
         "--version",
         "-V",
         help="Show the version and exit.",
+        callback=version_callback,
         is_eager=True,
     ),
 ):
@@ -45,12 +58,6 @@ def main_command(
     Any extra arguments passed after the filename are forwarded to the program
     (e.g., used for setting initial tape values in DAP mode).
     """
-    if version:
-        from . import __version__
-
-        typer.echo(__version__)
-        raise typer.Exit()
-    import sys
     from varphi_python import VarphiToPythonCompiler
     from varphi_python_dap import VarphiToPythonDAPCompiler
     from varphi_devkit import VarphiSyntaxError
@@ -91,7 +98,7 @@ def main_command(
         "__builtins__": __builtins__,
     }
 
-    # Execute (Interpret)
+    # Interpret the program
     # We create a safe context where sys.argv is temporarily swapped.
     original_argv = sys.argv
     try:
