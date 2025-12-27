@@ -30,6 +30,13 @@ def main_command(
     check: bool = typer.Option(
         False, "--check", help="Compile only to verify syntax (does not execute)."
     ),
+    version: bool = typer.Option(
+        False,
+        "--version",
+        "-V",
+        help="Show the version and exit.",
+        is_eager=True,
+    ),
 ):
     """
     The Varphi Interpreter.
@@ -38,6 +45,11 @@ def main_command(
     Any extra arguments passed after the filename are forwarded to the program
     (e.g., used for setting initial tape values in DAP mode).
     """
+    if version:
+        from . import __version__
+
+        typer.echo(__version__)
+        raise typer.Exit()
     import sys
     from varphi_python import VarphiToPythonCompiler
     from varphi_python_dap import VarphiToPythonDAPCompiler
