@@ -1,0 +1,25 @@
+[project]
+name = "varphi-interpreter"
+version = "2.0.1"
+description = "An all-in-one tool for compiling and interpreting Varphi programs."
+readme = "README.md"
+authors = [
+    { name = "Varphi", email = "support@varphi-lang.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "typer>=0.21.0",
+    "varphi-python-dap>=1.0.1",
+]
+
+[project.scripts]
+vpi = "varphi_interpreter.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "black>=25.12.0",
+]
