@@ -194,10 +194,11 @@ wheels = [
 
 [[package]]
 name = "varphi-interpreter"
-version = "2.0.0"
+version = "2.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "typer" },
+    { name = "varphi-python" },
     { name = "varphi-python-dap" },
 ]
 
@@ -209,6 +210,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "typer", specifier = ">=0.21.0" },
+    { name = "varphi-python", specifier = ">=2.0.1" },
     { name = "varphi-python-dap", specifier = ">=1.0.1" },
 ]
 

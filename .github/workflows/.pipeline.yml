@@ -42,38 +42,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          # Ubuntu
-          - ubuntu-latest
-          - ubuntu-24.04
-          - ubuntu-22.04
-          - ubuntu-slim
-
-          # macOS 26 Arm64 beta
-          - macos-26
-          - macos-26-xlarge
-
-          # macOS 15
-          - macos-latest-large
-          - macos-15-large
-          - macos-15-intel
-
-          # macOS 15 Arm64
-          - macos-latest
-          - macos-15
-          - macos-15-xlarge
-
-          # macOS 14
-          - macos-14-large
-
-          # macOS 14 Arm64
-          - macos-14
-          - macos-14-xlarge
-
-          # Windows
-          - windows-latest
-          - windows-2025
-          - windows-2022
+        include:
+          - os: ubuntu-latest
+            label: linux-x86_64
+            icon_ext: png
+          - os: macos-latest
+            label: macos-arm64
+            icon_ext: icns
+          - os: windows-latest
+            label: windows-x86_64
+            icon_ext: ico
 
     steps:
       - uses: actions/checkout@v4
@@ -83,31 +61,71 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Install dependencies
-        run: uv pip install --system . pyinstaller
+      - name: Install Dependencies
+        run: |
+          uv sync --group dev
+          uv add pyinstaller pillow requests
+
+      - name: Prepare Logo
+        shell: python
+        run: |
+          import requests
+          from PIL import Image
+          from io import BytesIO
+          import os
+          
+          # Download
+          url = "https://raw.githubusercontent.com/varphi-lang/.github/refs/heads/main/profile/assets/VarphiLogo.png"
+          print(f"Downloading logo from {url}...")
+          response = requests.get(url)
+          response.raise_for_status()
+          
+          img = Image.open(BytesIO(response.content))
+          
+          # Convert based on Matrix OS extension
+          target_ext = "${{ matrix.icon_ext }}"
+          output_filename = f"logo.{target_ext}"
+          
+          if target_ext == "ico":
+              # Windows: Resize to standard icon sizes
+              img.save(output_filename, format='ICO', sizes=[(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)])
+          elif target_ext == "icns":
+              # macOS: Save as ICNS
+              img.save(output_filename, format='ICNS')
+          else:
+              # Linux: Keep as PNG
+              img.save(output_filename)
+              
+          print(f"Saved icon to {output_filename}")
 
       - name: Run PyInstaller
-        run: uv run pyinstaller --onefile --name vpi src/varphi/cli.py
+        shell: bash
+        run: |
+          ICON_FILE="logo.${{ matrix.icon_ext }}"
+          
+          # Run Pyinstaller using 'uv run' to ensure dependencies are found
+          uv run pyinstaller --onefile \
+            --name vpi \
+            --icon="$ICON_FILE" \
+            --clean \
+            src/varphi_interpreter/cli.py
 
       - name: Rename Artifact
         shell: bash
         run: |
-          set -euo pipefail
           cd dist
-
-          LABEL="${{ matrix.os }}"
-
+          SUFFIX="${{ matrix.label }}"
+          
           if [ "${{ runner.os }}" = "Windows" ]; then
-            mv "vpi.exe" "vpi-${LABEL}.exe"
+            mv "vpi.exe" "vpi-${SUFFIX}.exe"
           else
-            mv "vpi" "vpi-${LABEL}"
+            mv "vpi" "vpi-${SUFFIX}"
           fi
-
 
       - name: Upload Executable Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: exe-${{ matrix.os }}
+          name: exe-${{ matrix.label }}
           path: dist/vpi-*
 
   release:
