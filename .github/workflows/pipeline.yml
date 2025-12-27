@@ -1,43 +1,4 @@
-name: CI/CD
-
-on:
-  pull_request:
-    branches: ["main"]
-  push:
-    tags: ["v*"]
-
-jobs:
-  build-pypi:
-    name: Build & Publish PyPI
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: write
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          python-version: "3.13"
-
-      - name: Build distribution
-        run: uv build
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          skip-existing: true
-
-      - name: Upload PyPI Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: pypi-dist
-          path: dist/*
-
-  build-executables:
+build-executables:
     name: Build Executable (${{ matrix.os }})
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ${{ matrix.os }}
@@ -67,7 +28,7 @@ jobs:
         shell: bash
         run: |
           uv venv
-          
+          # Installing explicit dependencies ensures they exist in the venv
           uv pip install pillow requests pyinstaller varphi-python varphi-python-dap .
 
       - name: Create Logo Script
@@ -109,7 +70,9 @@ jobs:
         run: |
           ICON_FILE="logo.${{ matrix.icon_ext }}"
           
-          uv run pyinstaller --onefile \
+          # CHANGE: Use 'python -m PyInstaller' instead of just 'pyinstaller'
+          # This guarantees we use the venv's python interpreter and see all installed modules.
+          uv run python -m PyInstaller --onefile \
             --name vpi \
             --icon="$ICON_FILE" \
             --collect-all "varphi_python" \
@@ -134,23 +97,3 @@ jobs:
         with:
           name: exe-${{ matrix.label }}
           path: dist/vpi-*
-
-  release:
-    name: Create GitHub Release
-    needs: [build-pypi, build-executables]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: release_assets
-          merge-multiple: true
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: release_assets/*
-          generate_release_notes: true
-          make_latest: true
