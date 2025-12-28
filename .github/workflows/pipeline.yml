@@ -11,6 +11,10 @@ jobs:
     name: Build & Publish PyPI
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
+
     permissions:
       id-token: write
       contents: write
@@ -141,6 +145,10 @@ jobs:
     name: Create GitHub Release
     needs: [build-pypi, build-executables]
     runs-on: ubuntu-latest
+
+    environment:
+      name: github-release
+
     permissions:
       contents: write
     steps:
