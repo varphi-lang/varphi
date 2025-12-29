@@ -210,8 +210,8 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "typer", specifier = ">=0.21.0" },
-    { name = "varphi-python", specifier = "==2.0.4" },
-    { name = "varphi-python-dap", specifier = "==1.0.4" },
+    { name = "varphi-python", specifier = "==2.0.5" },
+    { name = "varphi-python-dap", specifier = "==1.0.5" },
 ]
 
 [package.metadata.requires-dev]
@@ -219,25 +219,25 @@ dev = [{ name = "black", specifier = ">=25.12.0" }]
 
 [[package]]
 name = "varphi-python"
-version = "2.0.4"
+version = "2.0.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "typer" },
     { name = "varphi-devkit" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/35/3b/fe5795ea1ef44fbcc3c60f38900c0fad08cfcee50f9efff7a6ad5f927175/varphi_python-2.0.4.tar.gz", hash = "sha256:8df433b92b30eb8e7d27ad73b0ac285648d1561bde174c86bacea1afbc98ac8d", size = 5638, upload-time = "2025-12-29T02:57:13.387Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cb/d7/96d17fa58e411eec6b08c792c5383a1502dba5be84a9de7aef865633d47f/varphi_python-2.0.5.tar.gz", hash = "sha256:61446ca630317c60a3ea3e7cfba9b2d9c3cfab3a657a4804d30fb293a55acfcc", size = 5636, upload-time = "2025-12-29T22:27:20.633Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d3/dd/e9f1baae05befa85e1d52cf49d9594eb19ca794d1ba12ab401452fc846ec/varphi_python-2.0.4-py3-none-any.whl", hash = "sha256:1998f9c7dd9c28ea75fc18849707cac30932de55e57e2423c669ac0dbcaf8a7f", size = 8487, upload-time = "2025-12-29T02:57:11.972Z" },
+    { url = "https://files.pythonhosted.org/packages/6d/72/656d4e67893c85e2fb85ca68edbdfcca3fee1fefae27184e2b8ae3080b82/varphi_python-2.0.5-py3-none-any.whl", hash = "sha256:ec5fa93eb152109a11bfea2f4edf46177e7b4b9c35f7ab55197d5a5d8d0a4c78", size = 8486, upload-time = "2025-12-29T22:27:19.167Z" },
 ]
 
 [[package]]
 name = "varphi-python-dap"
-version = "1.0.4"
+version = "1.0.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "varphi-python" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/35/81/1c0905924725c8b3748641eeb251b3db183f4f20b97dc8688e8bcd39c552/varphi_python_dap-1.0.4.tar.gz", hash = "sha256:a75d46e7a370f8fe2f35d1976c78f9748b8e337b631af121f6eb2e4f1a1bf27f", size = 5571, upload-time = "2025-12-29T03:21:54.627Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/1d/0a8bc5d1ed8a1d5bb281a9bd9ce9160f3bde88f1f0a5b4251f55ae332c43/varphi_python_dap-1.0.5.tar.gz", hash = "sha256:a9f8d9b3040fcccbcd2e8f4e313e9d471324a41be13810e11776efee177ade8c", size = 5573, upload-time = "2025-12-29T22:34:54.326Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9a/f5/23ee73a41f9ad23a03eed223b4c8d57090ba06138b67a5d82b6b4d28bb37/varphi_python_dap-1.0.4-py3-none-any.whl", hash = "sha256:149816f286ad0cc32d349afc38fc679dd15ffb7316e3fad21e20d81a309af15d", size = 7727, upload-time = "2025-12-29T03:21:53.418Z" },
+    { url = "https://files.pythonhosted.org/packages/1a/b6/400b8af89d15a1b48f2abff22d890338719ef6ce3669ce3decab10926e84/varphi_python_dap-1.0.5-py3-none-any.whl", hash = "sha256:d976a1489762947db647d91da5f96ef406c074a9a2ae0be7ab426d19c5a41c7d", size = 7727, upload-time = "2025-12-29T22:34:52.938Z" },
 ]
