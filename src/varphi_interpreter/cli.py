@@ -8,7 +8,6 @@ app = typer.Typer(add_completion=False)
 
 def version_callback(value: bool):
     if value:
-        # Import inside function to avoid top-level relative import issues if run as script
         from . import __version__
 
         typer.echo(__version__)
@@ -28,7 +27,7 @@ def main_command(
         dir_okay=False,
         readable=True,
         resolve_path=True,
-        help="Path to the .var source file",
+        help="Path to the Varphi source file",
     ),
     dap: bool = typer.Option(
         False, "--dap", help="Run in Debug Adapter Protocol mode (for IDEs)."
@@ -41,7 +40,6 @@ def main_command(
     check: bool = typer.Option(
         False, "--check", help="Compile only to verify syntax (does not execute)."
     ),
-    # Change: Connect the callback here
     version: Optional[bool] = typer.Option(
         None,
         "--version",
